@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Pergola">
+  <meta name="theme-color" content="#f4f5f7">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <title>Pergola</title>
+<style>
+  :root{
+    --bg:#f4f5f7;
+    --txt:#101114;
+    --muted:#6e7178;
+    --radius:30px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}
+  body{min-height:100vh}
+  .app{
+    max-width:860px;
+    margin:0 auto;
+    padding:calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 24px);
+  }
+  header{
+    padding:12px 4px 22px;
+    display:flex;
+    align-items:end;
+    justify-content:space-between;
+  }
+  h1{
+    margin:0;
+    font-size:clamp(34px,8vw,58px);
+    line-height:1;
+    letter-spacing:-1.6px;
+  }
+  .subtitle{
+    margin-top:8px;
+    font-size:14px;
+    color:var(--muted);
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  .card{
+    position:relative;
+    min-height:clamp(220px,42vw,360px);
+    border:0;
+    border-radius:var(--radius);
+    padding:0;
+    overflow:hidden;
+    text-align:left;
+    box-shadow:0 12px 28px rgba(0,0,0,.11);
+    background:#ddd;
+    cursor:pointer;
+    transform:translateZ(0);
+  }
+  .card img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .card::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(to bottom,rgba(0,0,0,.02) 35%,rgba(0,0,0,.62) 100%);
+  }
+  .card:active{transform:scale(.978)}
+  .badge{
+    position:absolute;
+    z-index:3;
+    top:16px;
+    left:16px;
+    width:46px;
+    height:46px;
+    border-radius:15px;
+    background:rgba(255,255,255,.93);
+    color:#111;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+    font-size:25px;
+    box-shadow:0 4px 12px rgba(0,0,0,.18);
+  }
+  .label{
+    position:absolute;
+    z-index:3;
+    left:18px;
+    right:18px;
+    bottom:18px;
+    color:#fff;
+    font-weight:800;
+    font-size:clamp(22px,5vw,36px);
+    line-height:1.03;
+    letter-spacing:-.7px;
+    text-shadow:0 2px 8px rgba(0,0,0,.35);
+  }
+  .status{
+    margin:18px 4px 0;
+    min-height:22px;
+    color:var(--muted);
+    font-size:14px;
+  }
+  @media (max-width:480px){
+    .app{padding-left:12px;padding-right:12px}
+    .grid{gap:12px}
+    .card{min-height:220px;border-radius:26px}
+    .badge{top:13px;left:13px;width:42px;height:42px;border-radius:13px;font-size:23px}
+    .label{left:15px;right:14px;bottom:15px;font-size:23px}
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Pergola</h1>
+        <div class="subtitle">Commande rapide</div>
+      </div>
+    </header>
+
+    <main class="grid" aria-label="Commandes de la pergola">
+      <button class="card" data-shortcut="TOUT HAUT" aria-label="TOUT HAUT">
+        <img src="assets/pergola_1.jpg" alt="">
+        <span class="badge">1</span>
+        <span class="label">TOUT HAUT</span>
+      </button>
+
+      <button class="card" data-shortcut="Fermeture fenêtre" aria-label="Fermeture fenêtre">
+        <img src="assets/pergola_2.jpg" alt="">
+        <span class="badge">2</span>
+        <span class="label">Fermeture fenêtre</span>
+      </button>
+
+      <button class="card" data-shortcut="Ouverture fenêtres" aria-label="Ouverture fenêtres">
+        <img src="assets/pergola_3.jpg" alt="">
+        <span class="badge">3</span>
+        <span class="label">Ouverture fenêtres</span>
+      </button>
+
+      <button class="card" data-shortcut="3 Position véranda" aria-label="3 Position véranda">
+        <img src="assets/pergola_4.jpg" alt="">
+        <span class="badge">4</span>
+        <span class="label">3 Position véranda</span>
+      </button>
+    </main>
+
+    <div id="status" class="status" aria-live="polite"></div>
+  </div>
+
+<script>
+  function runShortcut(name){
+    const status = document.getElementById('status');
+    status.textContent = "Lancement : " + name;
+    const url = "shortcuts://run-shortcut?name=" + encodeURIComponent(name);
+    window.location.href = url;
+    setTimeout(()=>status.textContent="", 1800);
+  }
+
+  document.querySelectorAll("[data-shortcut]").forEach(btn=>{
+    btn.addEventListener("click", ()=>runShortcut(btn.dataset.shortcut));
+  });
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+  }
+</script>
+</body>
+</html>
