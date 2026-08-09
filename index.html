@@ -1,179 +1,275 @@
-<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Pergola">
-  <meta name="theme-color" content="#f4f5f7">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="assets/icon-180.png">
-  <title>Pergola</title>
-<style>
-  :root{
-    --bg:#f4f5f7;
-    --txt:#101114;
-    --muted:#6e7178;
-    --radius:30px;
-  }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}
-  body{min-height:100vh}
-  .app{
-    max-width:860px;
-    margin:0 auto;
-    padding:calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 24px);
-  }
-  header{
-    padding:12px 4px 22px;
-    display:flex;
-    align-items:end;
-    justify-content:space-between;
-  }
-  h1{
-    margin:0;
-    font-size:clamp(34px,8vw,58px);
-    line-height:1;
-    letter-spacing:-1.6px;
-  }
-  .subtitle{
-    margin-top:8px;
-    font-size:14px;
-    color:var(--muted);
-  }
-  .grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:14px;
-  }
-  .card{
-    position:relative;
-    min-height:clamp(220px,42vw,360px);
-    border:0;
-    border-radius:var(--radius);
-    padding:0;
-    overflow:hidden;
-    text-align:left;
-    box-shadow:0 12px 28px rgba(0,0,0,.11);
-    background:#ddd;
-    cursor:pointer;
-    transform:translateZ(0);
-  }
-  .card img{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-  }
-  .card::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:linear-gradient(to bottom,rgba(0,0,0,.02) 35%,rgba(0,0,0,.62) 100%);
-  }
-  .card:active{transform:scale(.978)}
-  .badge{
-    position:absolute;
-    z-index:3;
-    top:16px;
-    left:16px;
-    width:46px;
-    height:46px;
-    border-radius:15px;
-    background:rgba(255,255,255,.93);
-    color:#111;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:800;
-    font-size:25px;
-    box-shadow:0 4px 12px rgba(0,0,0,.18);
-  }
-  .label{
-    position:absolute;
-    z-index:3;
-    left:18px;
-    right:18px;
-    bottom:18px;
-    color:#fff;
-    font-weight:800;
-    font-size:clamp(22px,5vw,36px);
-    line-height:1.03;
-    letter-spacing:-.7px;
-    text-shadow:0 2px 8px rgba(0,0,0,.35);
-  }
-  .status{
-    margin:18px 4px 0;
-    min-height:22px;
-    color:var(--muted);
-    font-size:14px;
-  }
-  @media (max-width:480px){
-    .app{padding-left:12px;padding-right:12px}
-    .grid{gap:12px}
-    .card{min-height:220px;border-radius:26px}
-    .badge{top:13px;left:13px;width:42px;height:42px;border-radius:13px;font-size:23px}
-    .label{left:15px;right:14px;bottom:15px;font-size:23px}
-  }
-</style>
-</head>
-<body>
-  <div class="app">
-    <header>
-      <div>
-        <h1>Pergola</h1>
-        <div class="subtitle">Commande rapide</div>
-      </div>
-    </header>
+=== ContentView.swift ===
 
-    <main class="grid" aria-label="Commandes de la pergola">
-      <button class="card" data-shortcut="TOUT HAUT" aria-label="TOUT HAUT">
-        <img src="assets/pergola_1.jpg" alt="">
-        <span class="badge">1</span>
-        <span class="label">TOUT HAUT</span>
-      </button>
+import SwiftUI
 
-      <button class="card" data-shortcut="Fermeture fenêtre" aria-label="Fermeture fenêtre">
-        <img src="assets/pergola_2.jpg" alt="">
-        <span class="badge">2</span>
-        <span class="label">Fermeture fenêtre</span>
-      </button>
+struct ContentView: View {
+    @EnvironmentObject private var homeKit: HomeKitController
+    @State private var showPositions = false
 
-      <button class="card" data-shortcut="Ouverture fenêtres" aria-label="Ouverture fenêtres">
-        <img src="assets/pergola_3.jpg" alt="">
-        <span class="badge">3</span>
-        <span class="label">Ouverture fenêtres</span>
-      </button>
+    private let columns = [
+        GridItem(.flexible(), spacing: 14),
+        GridItem(.flexible(), spacing: 14)
+    ]
 
-      <button class="card" data-shortcut="3 Position véranda" aria-label="3 Position véranda">
-        <img src="assets/pergola_4.jpg" alt="">
-        <span class="badge">4</span>
-        <span class="label">3 Position véranda</span>
-      </button>
-    </main>
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color(uiColor: .systemGroupedBackground)
+                    .ignoresSafeArea()
 
-    <div id="status" class="status" aria-live="polite"></div>
-  </div>
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        header
 
-<script>
-  function runShortcut(name){
-    const status = document.getElementById('status');
-    status.textContent = "Lancement : " + name;
-    const url = "shortcuts://run-shortcut?name=" + encodeURIComponent(name);
-    window.location.href = url;
-    setTimeout(()=>status.textContent="", 1800);
-  }
+                        LazyVGrid(columns: columns, spacing: 14) {
+                            PergolaButton(
+                                number: 1,
+                                title: "TOUT HAUT",
+                                imageName: "pergola_1"
+                            ) {
+                                homeKit.execute(sceneName: "TOUT EST EN HAUT")
+                            }
 
-  document.querySelectorAll("[data-shortcut]").forEach(btn=>{
-    btn.addEventListener("click", ()=>runShortcut(btn.dataset.shortcut));
-  });
+                            PergolaButton(
+                                number: 2,
+                                title: "Fermeture fenêtre",
+                                imageName: "pergola_2"
+                            ) {
+                                homeKit.execute(sceneName: "fermés transparent")
+                            }
 
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
-  }
-</script>
-</body>
-</html>
+                            PergolaButton(
+                                number: 3,
+                                title: "Ouverture fenêtres",
+                                imageName: "pergola_3"
+                            ) {
+                                homeKit.execute(sceneName: "ouverture transparent")
+                            }
+
+                            PergolaButton(
+                                number: 4,
+                                title: "3 Position véranda",
+                                imageName: "pergola_4"
+                            ) {
+                                showPositions = true
+                            }
+                        }
+
+                        statusPanel
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.bottom, 24)
+                }
+            }
+            .toolbar(.hidden, for: .navigationBar)
+            .confirmationDialog(
+                "Position véranda",
+                isPresented: $showPositions,
+                titleVisibility: .visible
+            ) {
+                Button("160") {
+                    homeKit.execute(sceneName: "véranda 35")
+                }
+                Button("190") {
+                    homeKit.execute(sceneName: "véranda 190")
+                }
+                Button("divan") {
+                    homeKit.execute(sceneName: "véranda 75%")
+                }
+                Button("Annuler", role: .cancel) {}
+            } message: {
+                Text("Choisissez la position à exécuter.")
+            }
+        }
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("Pergola")
+                .font(.system(size: 42, weight: .bold, design: .rounded))
+            Text("Commande HomeKit directe")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.top, 10)
+        .padding(.horizontal, 2)
+    }
+
+    private var statusPanel: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label(
+                homeKit.statusText,
+                systemImage: homeKit.isReady ? "house.fill" : "house"
+            )
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(homeKit.isReady ? .primary : .secondary)
+
+            if let error = homeKit.lastError {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18))
+    }
+}
+
+private struct PergolaButton: View {
+    let number: Int
+    let title: String
+    let imageName: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            ZStack(alignment: .bottomLeading) {
+                Image(imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 250)
+                    .clipped()
+
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.66)],
+                    startPoint: .center,
+                    endPoint: .bottom
+                )
+
+                Text(title)
+                    .font(.system(size: 23, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.72)
+                    .padding(15)
+
+                VStack {
+                    HStack {
+                        Text("\(number)")
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .foregroundStyle(.black)
+                            .frame(width: 42, height: 42)
+                            .background(.white.opacity(0.94), in: RoundedRectangle(cornerRadius: 13))
+                            .shadow(radius: 5, y: 2)
+                        Spacer()
+                    }
+                    Spacer()
+                }
+                .padding(13)
+            }
+            .frame(height: 250)
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .shadow(color: .black.opacity(0.14), radius: 10, y: 5)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
+    }
+}
+
+
+=== HomeKitController.swift ===
+
+import Foundation
+import HomeKit
+
+@MainActor
+final class HomeKitController: NSObject, ObservableObject, HMHomeManagerDelegate {
+    @Published private(set) var isReady = false
+    @Published private(set) var statusText = "Connexion à Maison…"
+    @Published private(set) var lastError: String?
+
+    private let manager = HMHomeManager()
+
+    override init() {
+        super.init()
+        manager.delegate = self
+    }
+
+    func homeManagerDidUpdateHomes(_ manager: HMHomeManager) {
+        isReady = !(manager.homes.isEmpty)
+        if manager.homes.isEmpty {
+            statusText = "Aucun domicile HomeKit accessible."
+        } else {
+            let name = activeHome?.name ?? "Maison"
+            statusText = "Connecté à \(name)"
+        }
+    }
+
+    private var activeHome: HMHome? {
+        manager.primaryHome ?? manager.homes.first
+    }
+
+    func execute(sceneName: String) {
+        lastError = nil
+
+        guard let home = activeHome else {
+            statusText = "Maison n’est pas encore disponible."
+            return
+        }
+
+        guard let actionSet = findActionSet(named: sceneName, in: home) else {
+            let names = home.actionSets.map(\.name).sorted().joined(separator: ", ")
+            lastError = "Scène « \(sceneName) » introuvable."
+            statusText = "Scène introuvable"
+            if !names.isEmpty {
+                print("Scènes HomeKit disponibles : \(names)")
+            }
+            return
+        }
+
+        statusText = "Exécution : \(sceneName)…"
+        home.executeActionSet(actionSet) { [weak self] error in
+            Task { @MainActor in
+                if let error {
+                    self?.lastError = error.localizedDescription
+                    self?.statusText = "Erreur HomeKit"
+                } else {
+                    self?.statusText = "Exécuté : \(sceneName)"
+                    self?.lastError = nil
+                }
+            }
+        }
+    }
+
+    private func findActionSet(named target: String, in home: HMHome) -> HMActionSet? {
+        let targetKey = normalized(target)
+
+        if let exact = home.actionSets.first(where: { normalized($0.name) == targetKey }) {
+            return exact
+        }
+
+        // Fallback prudent pour petites différences d'espaces/casse/accents.
+        return home.actionSets.first(where: {
+            let key = normalized($0.name)
+            return key.contains(targetKey) || targetKey.contains(key)
+        })
+    }
+
+    private func normalized(_ value: String) -> String {
+        value
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: Locale(identifier: "fr_CH"))
+            .replacingOccurrences(of: "  ", with: " ")
+    }
+}
+
+
+=== PergolaNativeApp.swift ===
+
+import SwiftUI
+
+@main
+struct PergolaNativeApp: App {
+    @StateObject private var homeKit = HomeKitController()
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environmentObject(homeKit)
+        }
+    }
+}
